@@ -12,8 +12,8 @@ int main() {
     askForBoundaries(lowerBound, upperBound);    
 
     int number = tryToGuessNumber(lowerBound, upperBound);
+    cout << number << " is the number you had in your mind.";
     return 0;
-
 }
 
 void askForBoundaries(int& lowerBound, int& upperBound) {
@@ -48,11 +48,11 @@ int tryToGuessNumber(int lowerBound, int upperBound) {
 
 
     if(askYNQeustion(askIfMiddle)) {
-        cout << "Found it! " + to_string(middleNumber);
+        cout << "Found it! ";
         return middleNumber;
     }
     else if (lengthOfInterval == 1) {
-        cout << "The only other possibility is " + to_string(middleNumber+1);
+        cout << "There is only one other possibility. ";
         return middleNumber+1;
     }
     else if (askYNQeustion(askIfLower)) {
