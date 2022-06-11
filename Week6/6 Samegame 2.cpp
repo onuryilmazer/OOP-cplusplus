@@ -257,6 +257,7 @@ void shiftTilesDown(vector<vector<Color>> &board) {
             }
 
             if (board[upperTileRow][j] != NOCOLOR) {
+                cout << "shifting down: " << upperTileRow << ", " << j << endl;
                 board[i][j] = board[upperTileRow][j];
                 board[upperTileRow][j] = NOCOLOR;
             }
