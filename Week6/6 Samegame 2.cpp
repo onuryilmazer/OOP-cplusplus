@@ -66,7 +66,7 @@ void drawBoard9x9(const vector<vector<Color>> &board) {
             
 
             cout << returnColoredTile(board.at(i-1).at(j-1), " ");
-            cout << returnColoredTile(board.at(i-1).at(j-1), " ");  //x2 width.
+            cout << returnColoredTile(board.at(i-1).at(j-1), " ");  //outputting twice for x2 width.
             
             if (j == 9) {
                 cout << endl;
@@ -143,11 +143,9 @@ vector<vector<int>> searchNeighboringSameColorTiles (int row, int column, vector
     Color pickedColor = board[row][column];
 
     if (pickedColor == NOCOLOR) {
-        cout << "Empty tile." << endl;
+        cout << "Empty tile selected." << endl;
         return listOfMatchingTileIndices;
     }
-
-    cout << "Examining row: " << row << " Column: " << column << " Color: " << pickedColor <<endl;
 
     for (int i = 1; i <= nrOfTilesAbove; i++) {
         if (pickedColor == board[row-i][column]) {
@@ -155,7 +153,6 @@ vector<vector<int>> searchNeighboringSameColorTiles (int row, int column, vector
             tile.push_back(row-i);
             tile.push_back(column);
             listOfMatchingTileIndices.push_back(tile);
-            cout << "Added the tile: " << tile.at(0) << ", " << tile.at(1) << endl;
         }
         else {
             break;
@@ -168,7 +165,6 @@ vector<vector<int>> searchNeighboringSameColorTiles (int row, int column, vector
             tile.push_back(row+i);
             tile.push_back(column);
             listOfMatchingTileIndices.push_back(tile);
-            cout << "Added the tile: " << tile.at(0) << ", " << tile.at(1) << endl;
         }
         else {
             break;
@@ -181,7 +177,6 @@ vector<vector<int>> searchNeighboringSameColorTiles (int row, int column, vector
             tile.push_back(row);
             tile.push_back(column-i);
             listOfMatchingTileIndices.push_back(tile);
-            cout << "Added the tile: " << tile.at(0) << ", " << tile.at(1) << endl;
         }
         else {
             break;
@@ -194,7 +189,6 @@ vector<vector<int>> searchNeighboringSameColorTiles (int row, int column, vector
             tile.push_back(row);
             tile.push_back(column+i);
             listOfMatchingTileIndices.push_back(tile);
-            cout << "Added the tile: " << tile.at(0) << ", " << tile.at(1) << endl;
         }
         else {
             break;
@@ -211,9 +205,69 @@ vector<vector<int>> searchNeighboringSameColorTiles (int row, int column, vector
     return listOfMatchingTileIndices;
 }
 
+vector<int> determineEmptyColumns(const vector<vector<Color>> &board) {
+    vector<int> emptyColumns;
+
+    for (int i = 0; i < board.at(0).size(); i++) { //traversing columns, based on 1st row's number of elements.
+        bool columnEmpty = true;
+
+        for (int j = 0; j < board.size(); j++) { //height of board, based on number of rows.
+            if (board.at(j).at(i) != NOCOLOR) {
+                columnEmpty = false;
+                break;
+            }
+        }
+
+        if (columnEmpty) {
+            emptyColumns.push_back(i);
+        }
+    }
+
+    return emptyColumns;
+}
+
+void shiftColumnsToLeft(vector<vector<Color>> &board, int beginningColumnIndex) {
+    //# rows: board.size()
+    //# columns: board.at(x).size()
+    for(int i = beginningColumnIndex+1; i < board.at(0).size(); i++) {
+        for (int j = 0; j < board.size(); j++) {
+            //color to prev (empty) column, this color empty, move on to next column.
+            board.at(j).at(i-1) = board.at(j).at(i);
+            board.at(j).at(i) = NOCOLOR;
+        }
+    }
+}
+
+void shiftTilesDown(vector<vector<Color>> &board) {
+    //starting from last row, traversing rows up
+    //find the first non-empty above each element and bring it down (update the original NOCOLOR)
+
+    int nrOfRows = board.size();
+    int nrOfColumns = board.at(0).size();
+
+    for (int i = nrOfRows -1; i >= 0; i--) { //i: row.
+        for (int j = nrOfColumns-1; j >= 0; j--) { //j: column.
+            if (board[i][j] != NOCOLOR) {
+                continue;
+            }
+
+            int upperTileRow = j-1;
+            while (upperTileRow > 0 && board[upperTileRow][j] == NOCOLOR) {
+                upperTileRow--;
+            }
+
+            if (board[upperTileRow][j] != NOCOLOR) {
+                board[i][j] = board[upperTileRow][j];
+                board[upperTileRow][j] = NOCOLOR;
+            }
+        }
+    }
+}
+
 void deleteTiles(vector<vector<int>> tileCoordinates, vector<vector<Color>> &board) {
-    //mark all no color
-    //check if empty column
+    //approach:
+    //mark all given tiles NOCOLOR
+    //check if any empty columns exist
         //if so, shift columns to the right of it to the left.
     //starting from the bottom, shift filled tiles down
 
@@ -221,27 +275,40 @@ void deleteTiles(vector<vector<int>> tileCoordinates, vector<vector<Color>> &boa
         board.at(tileCoordinates.at(i).at(0)).at(tileCoordinates.at(i).at(1)) = NOCOLOR;
     }
 
+    vector<int> emptyColumns = determineEmptyColumns(board);
+
+    for (int i = emptyColumns.size(); i > 0; i--) {  //starting from last empty column, fill the blank columns.
+        int currentColumn = emptyColumns.at(i-1);
+        shiftColumnsToLeft(board, currentColumn);
+    }
+
+    shiftTilesDown(board);
 }
 
-
-
-
+void createEmptyColumn (vector<vector<Color>> &board, int columnIndex) { //for debugging purposes.
+    for (int i = 0; i < board.size(); i++) {
+        board.at(i).at(columnIndex) = NOCOLOR;
+    }
+}
 
 
 //coordinate format: row, column. Ex: A1.
 int main() {
     vector<vector<Color>> board(9, vector<Color>(9));
     populateBoard9x9(board);
+
+    //createEmptyColumn(board, 5);  //for debugging purposes. 
+
     drawBoard9x9(board);
 
     while(true) {
         vector<int> pickedTile = userPickTilePrompt();
 
-        cout << "Picked tile row index: " << pickedTile.at(0) << " column index: " << pickedTile.at(1) << endl;
+        cout << "Chosen tile's row index: " << pickedTile.at(0) << " column index: " << pickedTile.at(1) << endl;
 
         vector<vector<int>> neighbors = searchNeighboringSameColorTiles(pickedTile.at(0),pickedTile.at(1),board);
 
-        cout << "\n Matching neighbors: \n";
+        cout << "Matching neighbors: \n";
 
         for (int i = 0; i < neighbors.size(); i++) {
             cout << "Row: " << neighbors.at(i).at(0) << ", Column: " << neighbors.at(i).at(1) << endl;
