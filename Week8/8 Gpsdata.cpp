@@ -219,7 +219,7 @@ int main() {
     Track track1;
     track1.read("track.txt");
     track1.print();
-    cout << "Durchschnittshoehe: " << track1.averageHeight() << "\n\n";
+    cout << "Track 1 Durchschnittshoehe: " << track1.averageHeight() << "\n\n";
 
     Track track2;
     for (int i = 0; i < 10; i++) {
@@ -227,7 +227,7 @@ int main() {
         track2.addTrackpunkt(t);
     }
     track2.print();
-    cout << "Durchschnittshoehe: " << track2.averageHeight() << "\n\n";
+    cout << "Track 2 Durchschnittshoehe: " << track2.averageHeight() << "\n\n";
     track2.write("track2.txt");
 
 
