@@ -227,7 +227,7 @@ int main() {
         track2.addTrackpunkt(t);
     }
     track2.print();
-    cout << "Durchschnittshoehe: " << track1.averageHeight() << "\n\n";
+    cout << "Durchschnittshoehe: " << track2.averageHeight() << "\n\n";
     track2.write("track2.txt");
 
 
